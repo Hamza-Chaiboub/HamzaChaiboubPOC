@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Food Menu POC</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 700px;
+      margin: 40px auto;
+      padding: 0 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      border: 1px solid #ccc;
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #eee;
+    }
+
+    footer {
+      margin-top: 30px;
+      color: #555;
+    }
+  </style>
+</head>
+
+<body>
+  <h1>Food Menu</h1>
+  <p id="status" role="status">Loading foods...</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th scope="col">Food</th>
+        <th scope="col">Price ($)</th>
+      </tr>
+    </thead>
+    <tbody id="food-list"></tbody>
+  </table>
+
+  <footer>
+    <p>This application is student work and is only for demonstrating web development skills.</p>
+  </footer>
+
+  <script>
+    // fetch food data and update the table without reloading the page
+    async function loadFoods() {
+      const tableBody = document.getElementById("food-list");
+      const status = document.getElementById("status");
+
+      try {
+        const response = await fetch("/foods");
+        // HTTP errors must be checked explicitly when using fetch
+        if (!response.ok) {
+          throw new Error(`Request failed: ${response.status}`);
+        }
+
+        const foods = await response.json();
+        tableBody.replaceChildren();
+
+        // create one table row for each food returned by the API
+        foods.forEach((food) => {
+          const row = document.createElement("tr");
+          const nameCell = document.createElement("td");
+          const priceCell = document.createElement("td");
+
+          nameCell.textContent = food.name;
+          priceCell.textContent = food.price.toFixed(2);
+
+          row.append(nameCell, priceCell);
+          tableBody.appendChild(row);
+        });
+
+        status.textContent = `${foods.length} foods available.`;
+        console.log("Foods loaded:", foods);
+      } catch (error) {
+        status.textContent = "Unable to load foods. Please try again.";
+        console.error("Error loading foods:", error);
+      }
+    }
+
+    loadFoods();
+  </script>
+</body>
+</html>
